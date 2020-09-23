@@ -2,7 +2,7 @@
  * 02158 Concurrent Programming, Fall 2020
  * Mandatory Assignment 1
  * Version 1.1
- * Problem 1 
+ * Problem 2
  */
 
 
@@ -16,6 +16,22 @@ import java.io.*;
 /**
  * Search task. No need to modify.
  */
+class functions{
+static int sum(int[] arr ) 
+{ 
+    int sum = 0; // initialize sum 
+    int i;
+   
+    // Iterate through all elements and add them to sum 
+    for (i = 0; i < arr.length; i++) 
+       sum +=  arr[i]; 
+   
+    return sum; 
+} 
+}
+
+
+
 class SearchTask implements Callable<List<Integer>> {
 
     char[] text, pattern;
@@ -60,7 +76,7 @@ public class Search {
     static int len;                     // Length of actual text
     static String fname;                // Text file name
     static char[] pattern;              // Search pattern
-    static int ntasks = 1;              // No. of tasks
+    static int ntasks = 2;              // No. of tasks
     static int nthreads = 1;            // No. of threads to use
     static boolean printPos = false;    // Print all positions found
     static int warmups = 0;             // No. of warmup searches
@@ -196,9 +212,6 @@ public class Search {
             /**********************************************
              * Run search using a single task
              *********************************************/
-            /**********************************************
-             * Run search using a single task
-             *********************************************/
             SearchTask singleSearch = new SearchTask(text, pattern, 0, len);
 
             List<Integer> singleResult = null;
@@ -236,18 +249,31 @@ public class Search {
             //times.add((double) singleTime);
             
             System.out.print(times);
+            
 
                         
             /**********************************************
              * Run search using multiple tasks
              *********************************************/
-
-/*+++++++++ Uncomment for Problem 2+ 
+ 
          
             // Create list of tasks
             List<SearchTask> taskList = new ArrayList<SearchTask>();
             // Add tasks to list here
-
+            
+            int interval = len/ntasks;
+        	int rest = len%ntasks;
+        	int level=0;
+            for(int n = 0; n<ntasks;n++) {
+            	if (n>rest) {
+            		taskList.add(new SearchTask(text,pattern,n*(interval+1),(n+1)*(interval+1)));
+            		level++;
+            	} else {
+            		taskList.add(new SearchTask(text,pattern,n*(interval)+level,(n+1)*(interval)+level));
+            	}
+            	
+            }
+            
             List<Integer> result = null;
             
             // Run the tasks a couple of times
@@ -256,6 +282,7 @@ public class Search {
             }
             
             totalTime = 0.0;
+            
             
             for (int run = 0; run < runs; run++) {
 
@@ -267,7 +294,11 @@ public class Search {
                 // Overall result is an ordered list of unique occurrence positions
                 result = new LinkedList<Integer>();
                 // Combine future results into an overall result 
-
+                
+                for (int tsk=0;tsk<ntasks;tsk++) {
+                	result.addAll(futures.get(tsk).get());
+                }
+            
                 time = (double) (System.nanoTime() - start) / 1e9;
                 totalTime += time;    
                 
@@ -285,7 +316,6 @@ public class Search {
             }
             System.out.printf("\n\nAverage speedup: %1.2f\n\n", singleTime / multiTime);
 
-++++++++++*/
             
             /**********************************************
              * Terminate engine after use
