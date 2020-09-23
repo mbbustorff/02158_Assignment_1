@@ -2,6 +2,7 @@
  * 02158 Concurrent Programming, Fall 2020
  * Mandatory Assignment 1
  * Version 1.1
+ * Problem 1 
  */
 
 
@@ -195,9 +196,14 @@ public class Search {
             /**********************************************
              * Run search using a single task
              *********************************************/
+            /**********************************************
+             * Run search using a single task
+             *********************************************/
             SearchTask singleSearch = new SearchTask(text, pattern, 0, len);
 
             List<Integer> singleResult = null;
+            
+            ArrayList<Double> times = new ArrayList<Double>();
 
             /*
              * Run a couple of times on engine for loading all classes and
@@ -219,12 +225,17 @@ public class Search {
                 totalTime += time;    
                 
                 System.out.print("\nSingle task: ");
-                writeRun(run);  writeResult(singleResult);  writeTime(time);  
+                writeRun(run);  writeResult(singleResult);  writeTime(time); 
+                times.add((double) time);
             }
             
             double singleTime = totalTime / runs;
             System.out.print("\n\nSingle task (avg.): "); 
             writeTime(singleTime);  System.out.println();
+            
+            //times.add((double) singleTime);
+            
+            System.out.print(times);
 
                         
             /**********************************************
