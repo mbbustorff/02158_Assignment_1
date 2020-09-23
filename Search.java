@@ -329,10 +329,12 @@ public class Search {
             
             
             writeData("\n");
+            writeData("# ");writeData(Integer.toString(ntasks));
+            writeData("\n");
             writeData("Using "); writeData(Integer.toString(ntasks));writeData(" Tasks");
-            double roundOff = (double) Math.round((singleTime / multiTime) * 100) / 100;
             writeData("\n");
             writeData("Average speedup: ");
+            double roundOff = (double) Math.round((singleTime / multiTime) * 100) / 100;
             writeData(Double.toString(roundOff));
             writeData("\n");
 
