@@ -1,9 +1,9 @@
+package assignment_1;
 /*
  * 02158 Concurrent Programming, Fall 2020
  * Mandatory Assignment 1
  * Version 1.1
- * Problem 2
- * TEST TAG
+ * Problem 3
  */
 
 
@@ -14,9 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.io.*;
 
-/**
- * Search task. No need to modify.
- */
+
 class functions{
 static int sum(int[] arr ) 
 { 
@@ -31,7 +29,9 @@ static int sum(int[] arr )
 } 
 }
 
-
+/**
+ * Search task. No need to modify.
+ */
 
 class SearchTask implements Callable<List<Integer>> {
 
@@ -77,7 +77,7 @@ public class Search {
     static int len;                     // Length of actual text
     static String fname;                // Text file name
     static char[] pattern;              // Search pattern
-    static int ntasks = 2;              // No. of tasks
+    static int ntasks = 1;              // No. of tasks
     static int nthreads = 1;            // No. of threads to use
     static boolean printPos = false;    // Print all positions found
     static int warmups = 0;             // No. of warmup searches
@@ -115,7 +115,7 @@ public class Search {
                 }
 
                 if (argv[i].equals("-d")) {
-                    datafile = argv[i+1];
+                	datafile = new String(argv[i + 1]);
                     i += 2;
                     continue;
                 }
@@ -189,10 +189,12 @@ public class Search {
                 // Append result to data file
                 FileWriter f = new FileWriter(datafile,true);
                 PrintWriter data =  new PrintWriter(new BufferedWriter(f));
-                data.println(s);
+                data.print(s);
+                
                 data.close();
             }
         } catch (IOException e) {
+        	
             e.printStackTrace();
         }
     }
@@ -208,8 +210,8 @@ public class Search {
                               fname, new String(pattern), ntasks, nthreads, warmups, runs);
 
             /* Setup execution engine */
-            ExecutorService engine = Executors.newSingleThreadExecutor();
-
+            ExecutorService engine = Executors.newCachedThreadPool();
+            
             /**********************************************
              * Run search using a single task
              *********************************************/
@@ -237,6 +239,7 @@ public class Search {
 
                 time = (double) (System.nanoTime() - start) / 1e9;
                 totalTime += time;    
+                
                 
                 System.out.print("\nSingle task: ");
                 writeRun(run);  writeResult(singleResult);  writeTime(time); 
@@ -305,6 +308,7 @@ public class Search {
                 
                 System.out.printf("\nUsing %2d tasks: ", ntasks);
                 writeRun(run);  writeResult(result);  writeTime(time);
+            
             }
 
             double multiTime = totalTime / runs;
@@ -314,8 +318,24 @@ public class Search {
             
             if (!singleResult.equals(result)) {
                 System.out.println("\nERROR: lists differ");
+                writeData("\nERROR: lists differ");
             }
             System.out.printf("\n\nAverage speedup: %1.2f\n\n", singleTime / multiTime);
+       
+            
+            /**********************************************
+             * Recording speedup data
+             *********************************************/
+            
+            
+            writeData("\n");
+            writeData("Using "); writeData(Integer.toString(ntasks));writeData(" Tasks");
+            double roundOff = (double) Math.round((singleTime / multiTime) * 100) / 100;
+            writeData("\n");
+            writeData("Average speedup: ");
+            writeData(Double.toString(roundOff));
+            writeData("\n");
+
 
             
             /**********************************************
@@ -328,4 +348,3 @@ public class Search {
         }
     }
 }
-
