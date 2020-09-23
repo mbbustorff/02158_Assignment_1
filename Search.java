@@ -1,8 +1,9 @@
+package assignment_1;
 /*
  * 02158 Concurrent Programming, Fall 2020
  * Mandatory Assignment 1
  * Version 1.1
- * Problem 1 
+ * Problem 3
  */
 
 
@@ -13,9 +14,25 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.io.*;
 
+
+class functions{
+static int sum(int[] arr ) 
+{ 
+    int sum = 0; // initialize sum 
+    int i;
+   
+    // Iterate through all elements and add them to sum 
+    for (i = 0; i < arr.length; i++) 
+       sum +=  arr[i]; 
+   
+    return sum; 
+} 
+}
+
 /**
  * Search task. No need to modify.
  */
+
 class SearchTask implements Callable<List<Integer>> {
 
     char[] text, pattern;
@@ -98,7 +115,7 @@ public class Search {
                 }
 
                 if (argv[i].equals("-d")) {
-                    datafile = argv[i+1];
+                	datafile = new String(argv[i + 1]);
                     i += 2;
                     continue;
                 }
@@ -172,10 +189,12 @@ public class Search {
                 // Append result to data file
                 FileWriter f = new FileWriter(datafile,true);
                 PrintWriter data =  new PrintWriter(new BufferedWriter(f));
-                data.println(s);
+                data.print(s);
+                
                 data.close();
             }
         } catch (IOException e) {
+        	
             e.printStackTrace();
         }
     }
@@ -191,11 +210,8 @@ public class Search {
                               fname, new String(pattern), ntasks, nthreads, warmups, runs);
 
             /* Setup execution engine */
-            ExecutorService engine = Executors.newSingleThreadExecutor();
-
-            /**********************************************
-             * Run search using a single task
-             *********************************************/
+            ExecutorService engine = Executors.newCachedThreadPool();
+            
             /**********************************************
              * Run search using a single task
              *********************************************/
@@ -224,6 +240,7 @@ public class Search {
                 time = (double) (System.nanoTime() - start) / 1e9;
                 totalTime += time;    
                 
+                
                 System.out.print("\nSingle task: ");
                 writeRun(run);  writeResult(singleResult);  writeTime(time); 
                 times.add((double) time);
@@ -236,18 +253,31 @@ public class Search {
             //times.add((double) singleTime);
             
             System.out.print(times);
+            
 
                         
             /**********************************************
              * Run search using multiple tasks
              *********************************************/
-
-/*+++++++++ Uncomment for Problem 2+ 
+ 
          
             // Create list of tasks
             List<SearchTask> taskList = new ArrayList<SearchTask>();
             // Add tasks to list here
-
+            
+            int interval = len/ntasks;
+        	int rest = len%ntasks;
+        	int level=0;
+            for(int n = 0; n<ntasks;n++) {
+            	if (n>rest) {
+            		taskList.add(new SearchTask(text,pattern,n*(interval+1),(n+1)*(interval+1)));
+            		level++;
+            	} else {
+            		taskList.add(new SearchTask(text,pattern,n*(interval)+level,(n+1)*(interval)+level));
+            	}
+            	
+            }
+            
             List<Integer> result = null;
             
             // Run the tasks a couple of times
@@ -256,6 +286,7 @@ public class Search {
             }
             
             totalTime = 0.0;
+            
             
             for (int run = 0; run < runs; run++) {
 
@@ -267,12 +298,17 @@ public class Search {
                 // Overall result is an ordered list of unique occurrence positions
                 result = new LinkedList<Integer>();
                 // Combine future results into an overall result 
-
+                
+                for (int tsk=0;tsk<ntasks;tsk++) {
+                	result.addAll(futures.get(tsk).get());
+                }
+            
                 time = (double) (System.nanoTime() - start) / 1e9;
                 totalTime += time;    
                 
                 System.out.printf("\nUsing %2d tasks: ", ntasks);
                 writeRun(run);  writeResult(result);  writeTime(time);
+            
             }
 
             double multiTime = totalTime / runs;
@@ -282,10 +318,25 @@ public class Search {
             
             if (!singleResult.equals(result)) {
                 System.out.println("\nERROR: lists differ");
+                writeData("\nERROR: lists differ");
             }
             System.out.printf("\n\nAverage speedup: %1.2f\n\n", singleTime / multiTime);
+       
+            
+            /**********************************************
+             * Recording speedup data
+             *********************************************/
+            
+            
+            writeData("\n");
+            writeData("Using "); writeData(Integer.toString(ntasks));writeData(" Tasks");
+            double roundOff = (double) Math.round((singleTime / multiTime) * 100) / 100;
+            writeData("\n");
+            writeData("Average speedup: ");
+            writeData(Double.toString(roundOff));
+            writeData("\n");
 
-++++++++++*/
+
             
             /**********************************************
              * Terminate engine after use
