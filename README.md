@@ -3,4 +3,4 @@
 
 Mandatory Assignment 1: Task-based Parallel Computing in Java
 
-The solution for each problem is implemented as a branch, the solution for problem 1 can be found in the master branch and so on.
+The solution for each problem is implemented as a tag, such that all solutions can be inspected as tags.
